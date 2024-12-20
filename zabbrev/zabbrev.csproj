@@ -1,16 +1,29 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ZAbbrevMaker</RootNamespace>
-    <TargetFramework>net8.0</TargetFramework>
-    <Version>0.10.0</Version>
+    <RootNamespace>zabbrev</RootNamespace>
+    <TargetFramework>net9.0</TargetFramework>
+    <Version>0.11.0</Version>
     <Authors>Henrik Åsman</Authors>
     <Company />
-    <Copyright>Copyright 2021, 2023 Henrik Åsman</Copyright>
+    <Copyright>Copyright 2021, 2024 Henrik Åsman</Copyright>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AnalysisLevel>latest</AnalysisLevel>
-    <OptionStrict>On</OptionStrict>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyyMMddHHmmss"))</SourceRevisionId>
   </PropertyGroup>
 
 </Project>
