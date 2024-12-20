@@ -1,5 +1,5 @@
 
-'Copyright (C) 2021, 2023 Henrik Åsman
+'Copyright (C) 2021, 2023 Henrik Ã…sman
 'You can redistribute and/or modify this file under the terms of the
 'GNU General Public License as published by the Free Software
 'Foundation, either version 3 of the License, or (at your option) any
@@ -1570,7 +1570,7 @@ Module Program
     End Sub
 
     Private Sub PrintAlphabetI6()
-        Console.Out.WriteLine("! Custom-made alphabet. Insert at beginning of game file (see DM4, §36).")
+        Console.Out.WriteLine("! Custom-made alphabet. Insert at beginning of game file (see DM4, Â§36).")
         Console.Out.WriteLine("Zcharacter")
         Console.Out.WriteLine("    " & Chr(34) & alphabet0.Replace("@", "@{0040}").Replace("\", "@{005C}") & Chr(34))
         Console.Out.WriteLine("    " & Chr(34) & alphabet1.Replace("@", "@{0040}").Replace("\", "@{005C}") & Chr(34))
