@@ -1,4 +1,4 @@
-# zabbrev
+# ZAbbrev
 Tool to make better abbreviations for ZIL and the z-machine. Input is the zap-files that results from compiling the zil-files. Typical workflow for Zilf:
 
     zilf.exe game.zil
