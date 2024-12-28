@@ -49,7 +49,7 @@ using System.Threading;
 // 0.10 2024-01-10 Visual Studio 2022, NET8
 //                 Using Suffix Array for optimizations (2x faster then earlier version)
 //                 New output/statistics
-// 0.11 2024-xx-xx Fix encoding error when building suffix array
+// 0.11 2024-12-28 Fix encoding error when building suffix array
 //                 Multiple passes when adding/removing spaces
 //                 Organize different compression options into -x[0-3], compression level
 //                 Added test with one or two initial/trailing characters removed
