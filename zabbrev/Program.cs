@@ -1,9 +1,11 @@
 ﻿//#define STOPWATCH       // Define this if you want the --stopwatches option
+//#define _IN_DEVELOPMENT   // Set this to false before release
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -100,6 +102,7 @@ namespace zabbrev
         private static int latestTotalPadding = 0;
         private static int outputFormat = 0;
         private static DateTime buildDateTimeLocal;
+        private static string buildTimestamp;
         private static int numberOfPasses = NUMBER_OF_PASSES_DEFAULT;
         private static int numberOfDeepPasses = NUMBER_OF_DEEP_PASSES_DEFAULT;
 
@@ -123,8 +126,30 @@ namespace zabbrev
             bool inform6StyleText = false;
             string gameDirectory = Environment.CurrentDirectory;
 
-            // Get date of build
-            buildDateTimeLocal = GetBuildDate(Assembly.GetExecutingAssembly()).ToLocalTime();
+            // Get date of build in format "1st January 2025"
+            buildDateTimeLocal = GetBuildDateUtc(Assembly.GetExecutingAssembly()).ToLocalTime();
+            buildTimestamp = buildDateTimeLocal.ToString("dxx xMM yyyy");
+            buildTimestamp = buildTimestamp.Replace("x01", "January");
+            buildTimestamp = buildTimestamp.Replace("x02", "February");
+            buildTimestamp = buildTimestamp.Replace("x03", "March");
+            buildTimestamp = buildTimestamp.Replace("x04", "April");
+            buildTimestamp = buildTimestamp.Replace("x05", "May");
+            buildTimestamp = buildTimestamp.Replace("x06", "June");
+            buildTimestamp = buildTimestamp.Replace("x07", "July");
+            buildTimestamp = buildTimestamp.Replace("x08", "August");
+            buildTimestamp = buildTimestamp.Replace("x09", "September");
+            buildTimestamp = buildTimestamp.Replace("x10", "October");
+            buildTimestamp = buildTimestamp.Replace("x11", "November");
+            buildTimestamp = buildTimestamp.Replace("x12", "December");
+            switch (buildTimestamp[..2]){
+                case "1x": case "21":case "31" : buildTimestamp = buildTimestamp.Replace("xx", "st"); break;
+                case "2x": case "22" : buildTimestamp = buildTimestamp.Replace("xx", "nd"); break;
+                case "3x": case "23" : buildTimestamp = buildTimestamp.Replace("xx", "rd"); break;
+                default : buildTimestamp = buildTimestamp.Replace("xx", "th"); break;
+            }
+#if (_IN_DEVELOPMENT == True)
+            buildTimestamp += ", in development";
+#endif
 
             // If no arguments and no files to work with, print -h
             if (args.Length == 0)
@@ -204,7 +229,7 @@ namespace zabbrev
                     case "-h":
                     case "--help":
                     case "\\?":
-                        Console.Error.WriteLine("ZAbbrev 0.11 ({0}) by Henrik Åsman, (c) 2021-2024",buildDateTimeLocal.ToString("yyyy-MM-dd HH:mm:ss"));
+                        Console.Error.WriteLine("ZAbbrev 0.11 ({0}) by Henrik Åsman, (c) 2021-2024",buildTimestamp);
                         Console.Error.WriteLine("Usage: zabbrev [switches] [path-to-game]");
                         Console.Error.WriteLine("Highly optimized abbreviations computed efficiently");
                         Console.Error.WriteLine();
@@ -406,7 +431,7 @@ namespace zabbrev
                 Stopwatch swPart = Stopwatch.StartNew();
                 Process proc = Process.GetCurrentProcess();
 
-                Console.Error.WriteLine("ZAbbrev 0.11 ({0}) by Henrik Åsman, (c) 2021-2024", buildDateTimeLocal.ToString("yyyy-MM-dd HH:mm:ss"));
+                Console.Error.WriteLine("ZAbbrev 0.11 ({0}) by Henrik Åsman, (c) 2021-2024", buildTimestamp);
                 Console.Error.WriteLine("Highly optimized abbreviations computed efficiently");
 
                 // Read file(s) inte one large text string and replace space, quote and LF.
@@ -2260,7 +2285,7 @@ namespace zabbrev
             Console.Out.WriteLine();
         }
 
-        private static DateTime GetBuildDate(Assembly assembly)
+        private static DateTime GetBuildDateUtc(Assembly assembly)
         {
             const string BuildVersionMetadataPrefix = "+build";
 
