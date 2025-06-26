@@ -91,6 +91,10 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
                         Small optimizations
         0.8  2022-01-15 Visual Studio 2019, NET5.0
 ```
+### C port of ZAbbrev
+There is also a C-port version ZAbbrev, maintained by Jason Self.  
+  
+https://gitlab.com/zil-org/zabbrev
 ## References
 ### Algorithm
 https://intfiction.org/t/highly-optimized-abbreviations-computed-efficiently/48753  
