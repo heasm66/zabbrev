@@ -1,16 +1,15 @@
-﻿//#define STOPWATCH       // Define this if you want the --stopwatches option
-//#define _IN_DEVELOPMENT   // Set this to false before release
+﻿#define STOPWATCH         // Define this if you want the --stopwatches option
+#define _IN_DEVELOPMENT   // Undefine this before release
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-//Copyright (C) 2021, 2024 Henrik Åsman
+//Copyright (C) 2021, 2025 Henrik Åsman
 //You can redistribute and/or modify this file under the terms of the
 //GNU General Public License as published by the Free Software
 //Foundation, either version 3 of the License, or (at your option) any
@@ -63,6 +62,7 @@ using System.Threading;
 //                 ZAbbrevMaker --> ZAbbrev
 //                 Replace StringBuilder objects with AsSpan()
 //                 zabbrev without argas and no files to process equals -h
+// 0.12 2025-xx-xx Ignore empty lines in input
 
 namespace zabbrev
 {
@@ -141,12 +141,13 @@ namespace zabbrev
             buildTimestamp = buildTimestamp.Replace("x10", "October");
             buildTimestamp = buildTimestamp.Replace("x11", "November");
             buildTimestamp = buildTimestamp.Replace("x12", "December");
-            switch (buildTimestamp[..2]){
-                case "1x": case "21":case "31" : buildTimestamp = buildTimestamp.Replace("xx", "st"); break;
-                case "2x": case "22" : buildTimestamp = buildTimestamp.Replace("xx", "nd"); break;
-                case "3x": case "23" : buildTimestamp = buildTimestamp.Replace("xx", "rd"); break;
-                default : buildTimestamp = buildTimestamp.Replace("xx", "th"); break;
-            }
+            buildTimestamp = buildTimestamp[..2] switch
+            {
+                "1x" or "21" or "31" => buildTimestamp.Replace("xx", "st"),
+                "2x" or "22" => buildTimestamp.Replace("xx", "nd"),
+                "3x" or "23" => buildTimestamp.Replace("xx", "rd"),
+                _ => buildTimestamp.Replace("xx", "th"),
+            };
 #if (_IN_DEVELOPMENT == True)
             buildTimestamp += ", in development";
 #endif
@@ -229,7 +230,7 @@ namespace zabbrev
                     case "-h":
                     case "--help":
                     case "\\?":
-                        Console.Error.WriteLine("ZAbbrev 0.11 ({0}) by Henrik Åsman, (c) 2021-2024",buildTimestamp);
+                        Console.Error.WriteLine("ZAbbrev 0.12 ({0}) by Henrik Åsman, (c) 2021-2025",buildTimestamp);
                         Console.Error.WriteLine("Usage: zabbrev [switches] [path-to-game]");
                         Console.Error.WriteLine("Highly optimized abbreviations computed efficiently");
                         Console.Error.WriteLine();
@@ -431,7 +432,7 @@ namespace zabbrev
                 Stopwatch swPart = Stopwatch.StartNew();
                 Process proc = Process.GetCurrentProcess();
 
-                Console.Error.WriteLine("ZAbbrev 0.11 ({0}) by Henrik Åsman, (c) 2021-2024", buildTimestamp);
+                Console.Error.WriteLine("ZAbbrev 0.12 ({0}) by Henrik Åsman, (c) 2021-2025", buildTimestamp);
                 Console.Error.WriteLine("Highly optimized abbreviations computed efficiently");
 
                 // Read file(s) inte one large text string and replace space, quote and LF.
@@ -522,6 +523,7 @@ namespace zabbrev
                             line = reader.ReadLine();
                             if (line is not null)
                             {
+                                if (string.IsNullOrEmpty(line.Trim())) continue;
                                 if ("GVLOSHW".Contains(line[0]))
                                 {
                                     // Replace ^, ~ and space
@@ -570,7 +572,7 @@ namespace zabbrev
                                     }
                                 }
                             }
-                        } while (line is not null);
+                        } while (!reader.EndOfStream);
                         reader.Close();
                     }
                     else
@@ -2130,7 +2132,7 @@ namespace zabbrev
 
             if (sortByFrequency)
             {
-                returnList.Sort((PatternData firstPair, PatternData nextPair) => Convert.ToInt32(firstPair.Frequency).CompareTo(Convert.ToInt32(nextPair.Frequency)));
+                returnList.Sort((firstPair, nextPair) => Convert.ToInt32(firstPair.Frequency).CompareTo(Convert.ToInt32(nextPair.Frequency)));
                 returnList.Reverse();
 
                 for (int i = NumberOfAbbrevs; i < abbrevList.Count; i++)
@@ -2138,7 +2140,7 @@ namespace zabbrev
             }
             else
             {
-                returnList.Sort((PatternData firstPair, PatternData nextPair) => ((int)firstPair.Key.Length).CompareTo((int)nextPair.Key.Length));
+                returnList.Sort((firstPair, nextPair) => ((int)firstPair.Key.Length).CompareTo((int)nextPair.Key.Length));
                 returnList.Reverse();
 
                 for (int i = NumberOfAbbrevs; i < abbrevList.Count; i++)
