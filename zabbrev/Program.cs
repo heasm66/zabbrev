@@ -63,6 +63,7 @@ using System.Threading;
 //                 Replace StringBuilder objects with AsSpan()
 //                 zabbrev without argas and no files to process equals -h
 // 0.12 2025-xx-xx Ignore empty lines in input
+//                 Refactoring and optimizations
 
 namespace zabbrev
 {
@@ -125,6 +126,20 @@ namespace zabbrev
             bool throwBackLowscorers = false;
             bool inform6StyleText = false;
             string gameDirectory = Environment.CurrentDirectory;
+
+            // Check how many processes that are available. If there are more than one we can safely raise the
+            // priority on our application to slighty above normal. Boost performance significantly.
+            // Do it in a Try..Catch-block because it might not be available on all platforms.
+            try  {
+                if (Environment.ProcessorCount > 1)
+                    System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.AboveNormal;
+            }
+            catch { 
+                // Do nothing, continue
+            }
+
+
+            
 
             // Get date of build in format "1st January 2025"
             buildDateTimeLocal = GetBuildDateUtc(Assembly.GetExecutingAssembly()).ToLocalTime();
