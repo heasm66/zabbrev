@@ -546,7 +546,7 @@ namespace zabbrev
                                         gameTextLine.routineID = routineID;
                                     if (!(objectNumber < 6 && (line == "O:^Class" || line == "O:^Object" || line == "O:^Routine" || line == "O:^String")))
                                         gameTextList.Add(gameTextLine);
-                                    totalCharacters += gameTextLine.TextAsSpan.Length;
+                                    totalCharacters += gameTextLine.textLength;
 
                                     // Add characters to charFreq
                                     for (int i = 3; i < line.Length; i++)
@@ -686,7 +686,7 @@ namespace zabbrev
                                             objectDescription = objectDescription
                                         };
                                         gameTextList.Add(gameTextLine);
-                                        totalCharacters += gameTextLine.TextAsSpan.Length;
+                                        totalCharacters += gameTextLine.textLength;
 
                                         // Add characters to charFreq
                                         for (int j = 0; j < gameTextLine.text.Length; j++)
@@ -765,7 +765,7 @@ namespace zabbrev
                                     objectDescription = true
                                 };
                                 gameTextList.Add(gameTextLine);
-                                totalCharacters += gameTextLine.TextAsSpan.Length;
+                                totalCharacters += gameTextLine.textLength;
 
                                 // Add characters to charFreq
                                 for (int j = 0; j < gameTextLine.text.Length; j++)
@@ -834,7 +834,7 @@ namespace zabbrev
                                 // Create dictionary. Replace two double-quotes with one (the first is an escape-char). 
                                 GameText gameTextLine = new(TextEncoding.GetString(byteTemp).Replace(string.Concat(QUOTE_REPLACEMENT, QUOTE_REPLACEMENT), QUOTE_REPLACEMENT.ToString()).Replace("}", "")) { packedAddress = packedAddress };
                                 gameTextList.Add(gameTextLine);
-                                totalCharacters += gameTextLine.TextAsSpan.Length;
+                                totalCharacters += gameTextLine.textLength;
 
                                 // Add characters to charFreq
                                 for (int j = 0; j < gameTextLine.text.Length; j++)
@@ -927,6 +927,18 @@ namespace zabbrev
                 string gsaString = SuffixArray.BuildGeneralizedSuffixArrayString(texts);
                 int[] sa = SuffixArray.BuildSuffixArray(gsaString);
                 int[] lcp = SuffixArray.BuildLCPArray(gsaString, sa);
+
+                //Update roundingNumber for all lines
+                foreach (GameText gameTextLine in gameTextList)
+                {
+                    if (gameTextLine.packedAddress)
+                    {
+                        gameTextLine.roundingNumber = 3; 
+                        if (zVersion > 3) gameTextLine.roundingNumber = 6;
+                        if (zVersion == 8) gameTextLine.roundingNumber = 12;
+                    }
+                }
+                
                 proc.Refresh();
                 swPart.Stop();
                 Console.Error.WriteLine("{0,7:0.000} {1,8:0.00}  {2:##,#} potential patterns", swPart.ElapsedMilliseconds / 1000.0, proc.PrivateMemorySize64 / (1024 * 1024), SuffixArray.CountUniquePatterns(lcp));
@@ -1809,31 +1821,27 @@ namespace zabbrev
             public int[] pickedAbbreviations;
             public int[] suffixArray;
             public int[] lcpArray;
-            public bool packedAddress = false;
+            public bool packedAddress = false;  // Assume inline string
             public bool objectDescription = false;
-            public int[] minimalCostFromHere; // Temporary array for holdinmgh Wagner's 'f' or 'F' during calculation
+            public int[] minimalCostFromHere;   // Temporary array for holdinmgh Wagner's 'f' or 'F' during calculation
             public int routineID = -1;
-
+            public int roundingNumber = 3;      // Default rounding for inline strings and version 3 packed strings 
             public GameText(string value)
             {
+                // Init text
                 this.text = value;
+                textAsCharArray = text.ToCharArray();
+                textLength = textAsCharArray.Length;
+
                 // Init size of arrays once and for all to avoid dynamic allocation in RescoreOptimalParse
-                minimalCostFromHere = new int[this.TextAsSpan.Length + 2];
-                minimalCostFromHere[this.TextAsSpan.Length] = 0;
-                pickedAbbreviations = new int[this.TextAsSpan.Length + 1];
+                minimalCostFromHere = new int[textLength + 2];
+                minimalCostFromHere[textLength] = 0;
+                pickedAbbreviations = new int[textLength + 1];
             }
 
             public readonly string text = "";
-
-            private char[] _textAsSpan = null;
-            public ReadOnlySpan<char> TextAsSpan
-            {
-                get
-                {
-                    _textAsSpan??=text.ToCharArray();
-                    return _textAsSpan;
-                }
-            }
+            public readonly int textLength = 0;
+            public readonly char[] textAsCharArray;
 
             public string FinishedText(List<PatternData> abbreviations)
             {
@@ -1965,10 +1973,11 @@ namespace zabbrev
             int totalBytes = 0;
 
             // Iterate over each string and pick optimal set of abbreviations from abbrevs for this string
-            for (int line = 0; line < gameText.Count; line++)
+            int gameTextCount = gameText.Count;                                 // Loop hoisting: moving condition outside
+            for (int line = 0; line < gameTextCount; line++)
             {
                 GameText gameTextLine = gameText[line];
-                int lengthOfTextLine = gameTextLine.TextAsSpan.Length; // Cache length
+                int textLength = gameTextLine.textLength; // Cache length
 
 #if STOPWATCH
                 if (stopwatches) sw3.Start();
@@ -1977,16 +1986,17 @@ namespace zabbrev
                 // abbreviation from current collection of abbreviations.
                 // List is null = no possible abbreviations at this position.
                 // Optimization info: ~41.8% of total time here
-                List<int>[] possibleAbbrevsArray = new List<int>[lengthOfTextLine];
-                for (int abbrevNo = 0; abbrevNo < abbreviations.Count; abbrevNo++)
+                int abbreviationsCount = abbreviations.Count;                   // Loop hoisting: moving condition outside
+                List<int>[] possibleAbbrevsArray = new List<int>[textLength];
+                for (int abbrevNo = 0; abbrevNo < abbreviationsCount; abbrevNo++)
                 {
                     List<int> abbrevOccurrences = abbreviations[abbrevNo].Occurrences[line];
                     if (abbrevOccurrences is not null)
                     {
-                        for (int abbrevPosition = 0; abbrevPosition < abbrevOccurrences.Count; abbrevPosition++)
+                        int abbrevOccurrencesCount = abbrevOccurrences.Count;   // Loop hoisting: moving condition outside
+                        for (int abbrevPosition = 0; abbrevPosition < abbrevOccurrencesCount; abbrevPosition++)
                         {
-                            if (possibleAbbrevsArray[abbrevOccurrences[abbrevPosition]] is null)
-                                possibleAbbrevsArray[abbrevOccurrences[abbrevPosition]] = new List<int>(1);  // initiate list with 1 slot (most common). Curses max out at 4.
+                            possibleAbbrevsArray[abbrevOccurrences[abbrevPosition]] ??= new List<int>(1); // initiate list with 1 slot (most common). Curses max out at 4.
                             possibleAbbrevsArray[abbrevOccurrences[abbrevPosition]].Add(abbrevNo);
                         }
                     }
@@ -2004,9 +2014,9 @@ namespace zabbrev
                 var minimalCostFromHere = gameTextLine.minimalCostFromHere;   // Use local copy to hopefully avoid boundary check
                 var pickedAbbreviations = gameTextLine.pickedAbbreviations;   // Use local copy to hopefully avoid boundary check
                 Array.Fill(pickedAbbreviations, -1);                          // -1 for "no abbreviation"
-                for (int index = lengthOfTextLine - 1; index >= 0; index--)
+                for (int index = textLength - 1; index >= 0; index--)
                 {
-                    minimalCostFromHere[index] = minimalCostFromHere[index + 1] + ZcharCost(gameTextLine.TextAsSpan[index]);
+                    minimalCostFromHere[index] = minimalCostFromHere[index + 1] + ZcharCost(gameTextLine.textAsCharArray[index]);
                     if (possibleAbbrevsArray[index] is not null)
                     {
                         foreach (int abbrevNo in possibleAbbrevsArray[index])
@@ -2045,7 +2055,7 @@ namespace zabbrev
                 // Note that the pickedAbbreviations array now also contains overlapped (false) abbreviations.
                 // These will be removed in the GameText.FinishedText method before printing string.  
                 // Optimization info: ~10.2% of total time here
-                for (int index = 0; index < lengthOfTextLine; index++)
+                for (int index = 0; index < textLength; index++)
                 {
                     if (pickedAbbreviations[index] > -1)
                     {
@@ -2063,12 +2073,7 @@ namespace zabbrev
                 // always have rounding of 3 inside routines (between routines the waste can be bigger because
                 // of padding but that is ignored here). 
                 // Optimization info: ~6.3% of total time here (to end)
-                var roundingNumber = 3;
-                if (gameTextLine.packedAddress)
-                {
-                    if (zversion > 3) roundingNumber = 6;
-                    if (zversion == 8) roundingNumber = 12;
-                }
+                var roundingNumber = gameTextLine.roundingNumber;
                 gameTextLine.latestRoundingCost = (roundingNumber - (minimalCostFromHere[0] % roundingNumber)) % roundingNumber;
                 gameTextLine.latestMinimalCost = minimalCostFromHere[0];
                 gameTextLine.latestTotalBytes = ((gameTextLine.latestMinimalCost + gameTextLine.latestRoundingCost) * 2) / 3;
@@ -2089,10 +2094,11 @@ namespace zabbrev
             if (returnTotalBytes)
             {
                 int latestStartIndex = 0;
-                for (var i = 0; i < routineSize.Count; i++)
+                int routineSizeCount = routineSize.Count;                       // Loop hoisting: moving condition outside
+                for (var i = 0; i < routineSizeCount; i++)
                 {
                     int routineSizeInBytes = routineSize[i];
-                    for (var j = latestStartIndex; j < gameText.Count; j++)
+                    for (var j = latestStartIndex; j < gameTextCount; j++)
                     {
                         if (gameText[j].routineID > i)
                         {
