@@ -16,7 +16,7 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
 
 ## Instructions
 ```
-    ZAbbrev 0.12 (27th June 2025, in development) by Henrik Åsman, (c) 2021-2025
+    ZAbbrev 0.12 (23rd August 2025, in development) by Henrik Åsman, (c) 2021-2025
     Usage: zabbrev [switches] [path-to-game]
     Highly optimized abbreviations computed efficiently
 
@@ -68,9 +68,10 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
      path-to-game       Use this path. If omitted the current path is used.
 
 
-	Changelog:
+    Changelog:
         0.12 2025-xx-xx Ignore empty lines in input
                         Refactoring and optimizations
+                        Bug: Crash on very small files (The Dragon and the Troll)
         0.11 2024-12-28 Fix encoding error when building suffix array
                         Multiple passes when adding/removing spaces
                         Organize different compression options into -x[0-3], compression level

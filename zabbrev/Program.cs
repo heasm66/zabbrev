@@ -22,23 +22,13 @@ using System.Threading;
 //along with this file. If not, see <https://www.gnu.org/licenses/>."
 
 // TODO:
-//   * OK: Convert to C# (converter.telerik.com)
-//   * OK: When C#, use Span instead of Array
-//   * OK: Add output option to UnZil for a gametext.txt-file
 //   * Optimization for pass 2, use suffix array?
 //   * Find better algorithm for viable patterns to test in pass 2
 //   * Refactoring tip: suggest beginning or end of text globals (".^" = PERIOD-CR)
 //   * Switch to export ZIL alphabet in ZAP-format (so a bat-script can pipe it in automatically)
-//   * OK: Warning that custom alphabet isn't defined for versions 1-4.
 //   * Option to limit length of abbreviations (Inform6 have a limit of 64 characters).
 //   * OK: Warning that abbreviations exceed limit for Inform6 targets
 //       - Issue a warning when one or more abbreviations exceed 64 characters and suggest refactoring code.
-//   * OK: Craverly Heights, encoding error
-//   * OK: New switch -x that sets compression level. x2 is default.
-//       -x0 Fastest Pick abbreviations according to highest score with R.A. Wagner's "optimal Parse" method.
-//       -x1 Fast    x0 + Try adding and removing initial and trailing space to abbreviations adjusting for z-chars rounding.
-//       -x2 Normal  x1 + Try 10.000 discarded variants of abbreviations to see if they adjust better for z-chars rounding.
-//       -x3 Maximum x2 + Try 1.000 discarded abbreviations as all possible replacements to get best adjustment for z-chars rounding. 
 
 // Changelog:
 // 0.8  2022-01-15 Visual Studio 2019, NET5.0
@@ -64,6 +54,7 @@ using System.Threading;
 //                 zabbrev without argas and no files to process equals -h
 // 0.12 2025-xx-xx Ignore empty lines in input
 //                 Refactoring and optimizations
+//                 Bug: Crash on very small files (The Dragon and the Troll)
 
 namespace zabbrev
 {
@@ -126,6 +117,7 @@ namespace zabbrev
             bool throwBackLowscorers = false;
             bool inform6StyleText = false;
             string gameDirectory = Environment.CurrentDirectory;
+            gameDirectory = "C:\\Users\\heasm\\OneDrive\\Dokument\\Interactive Fiction\\Source\\Inform6\\The Dragon and the Troll\\";
 
             // Check how many processes that are available. If there are more than one we can safely raise the
             // priority on our application to slighty above normal. Boost performance significantly.
@@ -1349,7 +1341,7 @@ namespace zabbrev
                             int listCount1 = bestCandidateList.Count;
                             for (int i = 0; i < listCount1; i++)
                             {
-                                if (bestCandidateList[i].Key.StartsWith(SPACE_REPLACEMENT))
+                                if (bestCandidateList[i].Key.StartsWith(SPACE_REPLACEMENT) && bestCandidateList[i].Key.Length > 1)
                                 {
                                     bestCandidateList[i].Key = bestCandidateList[i].Key[1..];
                                     bestCandidateList[i].Cost -= 1;
@@ -1398,7 +1390,7 @@ namespace zabbrev
                             int listCount2 = bestCandidateList.Count;
                             for (int i = 0; i < listCount2; i++)
                             {
-                                if (bestCandidateList[i].Key.EndsWith(SPACE_REPLACEMENT))
+                                if (bestCandidateList[i].Key.EndsWith(SPACE_REPLACEMENT) && bestCandidateList[i].Key.Length > 1)
                                 {
                                     bestCandidateList[i].Key = bestCandidateList[i].Key[..^1];
                                     bestCandidateList[i].Cost -= 1;
@@ -1471,27 +1463,30 @@ namespace zabbrev
                                         bestCandidateList[i].UpdateOccurrences(gameTextList, true);
                                     }
 
-                                    oldCandidate = bestCandidateList[i].Key;
-                                    bestCandidateList[i].Key = bestCandidateList[i].Key[..^1];
-                                    bestCandidateList[i].Cost = ZstringCost(bestCandidateList[i].Key);
-                                    bestCandidateList[i].UpdateOccurrences(gameTextList, true);
-                                    latestTotalBytes = RescoreOptimalParse(gameTextList, bestCandidateList, true, zVersion);
-                                    deltaSavings = previousTotalBytes - latestTotalBytes;
-                                    if (deltaSavings > 0)
+                                    if (bestCandidateList[i].Key.Length > 1)
                                     {
-                                        // Keep it
-                                        previousTotalBytes = latestTotalBytes;
-                                        if (printDebug)
-                                        {
-                                            Console.Error.WriteLine("Replacing " + FormatAbbreviation(oldCandidate) + " with " + FormatAbbreviation(bestCandidateList[i].Key) + ", saving " + deltaSavings.ToString() + " bytes");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        // Restore
-                                        bestCandidateList[i].Key = oldCandidate;
+                                        oldCandidate = bestCandidateList[i].Key;
+                                        bestCandidateList[i].Key = bestCandidateList[i].Key[..^1];
                                         bestCandidateList[i].Cost = ZstringCost(bestCandidateList[i].Key);
                                         bestCandidateList[i].UpdateOccurrences(gameTextList, true);
+                                        latestTotalBytes = RescoreOptimalParse(gameTextList, bestCandidateList, true, zVersion);
+                                        deltaSavings = previousTotalBytes - latestTotalBytes;
+                                        if (deltaSavings > 0)
+                                        {
+                                            // Keep it
+                                            previousTotalBytes = latestTotalBytes;
+                                            if (printDebug)
+                                            {
+                                                Console.Error.WriteLine("Replacing " + FormatAbbreviation(oldCandidate) + " with " + FormatAbbreviation(bestCandidateList[i].Key) + ", saving " + deltaSavings.ToString() + " bytes");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // Restore
+                                            bestCandidateList[i].Key = oldCandidate;
+                                            bestCandidateList[i].Cost = ZstringCost(bestCandidateList[i].Key);
+                                            bestCandidateList[i].UpdateOccurrences(gameTextList, true);
+                                        }
                                     }
                                 }
                             }
@@ -1523,25 +1518,28 @@ namespace zabbrev
                                         bestCandidateList[i].UpdateOccurrences(gameTextList, true);
                                     }
 
-                                    oldCandidate = bestCandidateList[i].Key;
-                                    bestCandidateList[i].Key = bestCandidateList[i].Key[..^2];
-                                    bestCandidateList[i].Cost = ZstringCost(bestCandidateList[i].Key);
-                                    bestCandidateList[i].UpdateOccurrences(gameTextList, true);
-                                    latestTotalBytes = RescoreOptimalParse(gameTextList, bestCandidateList, true, zVersion);
-                                    deltaSavings = previousTotalBytes - latestTotalBytes;
-                                    if (deltaSavings > 0)
+                                    if (bestCandidateList[i].Key.Length > 2)
                                     {
-                                        // Keep it
-                                        previousTotalBytes = latestTotalBytes;
-                                        if (printDebug)
-                                            Console.Error.WriteLine("Replacing " + FormatAbbreviation(oldCandidate) + " with " + FormatAbbreviation(bestCandidateList[i].Key) + ", saving " + deltaSavings.ToString() + " bytes");
-                                    }
-                                    else
-                                    {
-                                        // Restore
-                                        bestCandidateList[i].Key = oldCandidate;
+                                        oldCandidate = bestCandidateList[i].Key;
+                                        bestCandidateList[i].Key = bestCandidateList[i].Key[..^2];
                                         bestCandidateList[i].Cost = ZstringCost(bestCandidateList[i].Key);
                                         bestCandidateList[i].UpdateOccurrences(gameTextList, true);
+                                        latestTotalBytes = RescoreOptimalParse(gameTextList, bestCandidateList, true, zVersion);
+                                        deltaSavings = previousTotalBytes - latestTotalBytes;
+                                        if (deltaSavings > 0)
+                                        {
+                                            // Keep it
+                                            previousTotalBytes = latestTotalBytes;
+                                            if (printDebug)
+                                                Console.Error.WriteLine("Replacing " + FormatAbbreviation(oldCandidate) + " with " + FormatAbbreviation(bestCandidateList[i].Key) + ", saving " + deltaSavings.ToString() + " bytes");
+                                        }
+                                        else
+                                        {
+                                            // Restore
+                                            bestCandidateList[i].Key = oldCandidate;
+                                            bestCandidateList[i].Cost = ZstringCost(bestCandidateList[i].Key);
+                                            bestCandidateList[i].UpdateOccurrences(gameTextList, true);
+                                        }
                                     }
                                 }
                             }
