@@ -905,9 +905,14 @@ namespace zabbrev
                     alphabet1And2Hash.Clear();
 
                     string alphabet = "";
-                    for (int i = 0; i <= 74; i++) alphabet = string.Concat(alphabet, charFreqList[i].Key);
-                    alphabet0 = SortAlphabet(alphabet[..26], defaultA0);
-                    alphabet1 = SortAlphabet(alphabet.Substring(26, 49), string.Concat(defaultA1, defaultA2));
+                    int charCount = charFreqList.Count;
+                    for (int i = 0; i <= 74; i++)
+                        if (i < charCount) alphabet = string.Concat(alphabet, charFreqList[i].Key);
+                    alphabet0 = SortAlphabet(alphabet[..Math.Min(26, charCount - 1)], defaultA0);
+                    if (charCount >= 74)
+                        alphabet1 = SortAlphabet(alphabet.Substring(26, 49), string.Concat(defaultA1, defaultA2));
+                    else
+                        alphabet1 = (alphabet[26..] + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")[..49];
                     alphabet2 = alphabet1[26..];
                     alphabet1 = alphabet1[..26];
                     if (printDebug)

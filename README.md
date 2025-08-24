@@ -72,6 +72,7 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
         0.12 2025-xx-xx Ignore empty lines in input
                         Refactoring and optimizations
                         Bug: Crash on very small files (The Dragon and the Troll)
+                        Bug: -a crashes when not enough characters for a full alphabet
         0.11 2024-12-28 Fix encoding error when building suffix array
                         Multiple passes when adding/removing spaces
                         Organize different compression options into -x[0-3], compression level
