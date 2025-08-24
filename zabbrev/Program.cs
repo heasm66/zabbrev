@@ -117,7 +117,6 @@ namespace zabbrev
             bool throwBackLowscorers = false;
             bool inform6StyleText = false;
             string gameDirectory = Environment.CurrentDirectory;
-            gameDirectory = "C:\\Users\\heasm\\OneDrive\\Dokument\\Interactive Fiction\\Source\\Inform6\\The Dragon and the Troll\\";
 
             // Check how many processes that are available. If there are more than one we can safely raise the
             // priority on our application to slighty above normal. Boost performance significantly.
