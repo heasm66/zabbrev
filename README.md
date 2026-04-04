@@ -16,7 +16,7 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
 
 ## Instructions
 ```
-    ZAbbrev 0.12 (23rd August 2025, in development) by Henrik Åsman, (c) 2021-2025
+    ZAbbrev 0.12 (4th April 2026, in development) by Henrik Åsman, (c) 2021-2026
     Usage: zabbrev [switches] [path-to-game]
     Highly optimized abbreviations computed efficiently
 

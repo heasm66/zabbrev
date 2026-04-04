@@ -1,6 +1,6 @@
 ﻿//MIT License
 
-//Copyright (c) 2021-2025 Henrik Åsman
+//Copyright (c) 2021-2026 Henrik Åsman
 
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -246,7 +246,7 @@ namespace zabbrev
                     case "-h":
                     case "--help":
                     case "\\?":
-                        Console.Error.WriteLine("ZAbbrev 0.12 ({0}) by Henrik Åsman, (c) 2021-2025",buildTimestamp);
+                        Console.Error.WriteLine("ZAbbrev 0.12 ({0}) by Henrik Åsman, (c) 2021-2026",buildTimestamp);
                         Console.Error.WriteLine("Usage: zabbrev [switches] [path-to-game]");
                         Console.Error.WriteLine("Highly optimized abbreviations computed efficiently");
                         Console.Error.WriteLine();
@@ -448,7 +448,7 @@ namespace zabbrev
                 Stopwatch swPart = Stopwatch.StartNew();
                 Process proc = Process.GetCurrentProcess();
 
-                Console.Error.WriteLine("ZAbbrev 0.12 ({0}) by Henrik Åsman, (c) 2021-2025", buildTimestamp);
+                Console.Error.WriteLine("ZAbbrev 0.12 ({0}) by Henrik Åsman, (c) 2021-2026", buildTimestamp);
                 Console.Error.WriteLine("Highly optimized abbreviations computed efficiently");
 
                 // Read file(s) inte one large text string and replace space, quote and LF.
