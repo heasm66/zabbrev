@@ -98,7 +98,7 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
 ### C port of ZAbbrev
 There is also a C-port version ZAbbrev, maintained by Jason Self.  
   
-https://gitlab.com/zil-org/zabbrev
+https://jxself.org/git/?p=zabbrev.git
 ## References
 ### Algorithm
 https://intfiction.org/t/highly-optimized-abbreviations-computed-efficiently/48753  
