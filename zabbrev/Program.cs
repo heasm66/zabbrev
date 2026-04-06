@@ -568,7 +568,7 @@ namespace zabbrev
                                     for (int i = 3; i < line.Length; i++)
                                     {
                                         char c = line[i];
-                                        if (!(c == LF_REPLACEMENT || c == QUOTE_REPLACEMENT || c == SPACE_REPLACEMENT || ASCII(c) == 27))
+                                        if (!(c == LF_REPLACEMENT || c == QUOTE_REPLACEMENT || c == SPACE_REPLACEMENT || (int)c == 27))
                                         {
                                             charFreq.TryAdd(c, 0);
                                             charFreq[c] += 1;
@@ -689,9 +689,9 @@ namespace zabbrev
                                         for (int j = 0; j < byteTemp.Length; j++)
                                         {
                                             byte byteChar = byteText[startPos + 1 + j];
-                                            if (byteChar == 10) byteChar = ASCII(LF_REPLACEMENT);
-                                            if (byteChar == 32) byteChar = ASCII(SPACE_REPLACEMENT);
-                                            if (byteChar == 34) byteChar = ASCII(QUOTE_REPLACEMENT);
+                                            if (byteChar == 10) byteChar = (byte)LF_REPLACEMENT;
+                                            if (byteChar == 32) byteChar = (byte)SPACE_REPLACEMENT;
+                                            if (byteChar == 34) byteChar = (byte)QUOTE_REPLACEMENT;
                                             byteTemp[j] = byteChar;
                                         }
 
@@ -708,7 +708,7 @@ namespace zabbrev
                                         for (int j = 0; j < gameTextLine.text.Length; j++)
                                         {
                                             char c = gameTextLine.text[j];
-                                            if (!(c == LF_REPLACEMENT || c == QUOTE_REPLACEMENT || c == SPACE_REPLACEMENT || ASCII(c) == 27))
+                                            if (!(c == LF_REPLACEMENT || c == QUOTE_REPLACEMENT || c == SPACE_REPLACEMENT || (int)c == 27))
                                             {
                                                 charFreq.TryAdd(c, 0);
                                                 charFreq[c] += 1;
@@ -768,9 +768,9 @@ namespace zabbrev
                                 for (int j = 0; j < byteTemp.Length; j++)
                                 {
                                     byte byteChar = byteInfodump[startPos + 1 + j];
-                                    if (byteChar == 10 || byteChar == 94) byteChar = ASCII(LF_REPLACEMENT);
-                                    if (byteChar == 32) byteChar = ASCII(SPACE_REPLACEMENT);
-                                    if (byteChar == 34) byteChar = ASCII(QUOTE_REPLACEMENT);
+                                    if (byteChar == 10 || byteChar == 94) byteChar = (byte)LF_REPLACEMENT;
+                                    if (byteChar == 32) byteChar = (byte)SPACE_REPLACEMENT;
+                                    if (byteChar == 34) byteChar = (byte)QUOTE_REPLACEMENT;
                                     byteTemp[j] = byteChar;
                                 }
 
@@ -787,7 +787,7 @@ namespace zabbrev
                                 for (int j = 0; j < gameTextLine.text.Length; j++)
                                 {
                                     char c = gameTextLine.text[j];
-                                    if (!(c == LF_REPLACEMENT || c == QUOTE_REPLACEMENT || c == SPACE_REPLACEMENT || ASCII(c) == 27))
+                                    if (!(c == LF_REPLACEMENT || c == QUOTE_REPLACEMENT || c == SPACE_REPLACEMENT || (int)c == 27))
                                     {
                                         charFreq.TryAdd(c, 0);
                                         charFreq[c] += 1;
@@ -839,11 +839,11 @@ namespace zabbrev
                                 for (int j = 0; j < byteTemp.Length; j++)
                                 {
                                     byte byteChar = byteTxd[startPos + 1 + j];
-                                    if (byteChar == 13) byteChar = ASCII('}'); // Supress CR
-                                    if (byteChar == 10) byteChar = 32;         // Convert LF to SPACE
-                                    if (byteChar == 94) byteChar = ASCII(LF_REPLACEMENT);
-                                    if (byteChar == 32) byteChar = ASCII(SPACE_REPLACEMENT);
-                                    if (byteChar == 34) byteChar = ASCII(QUOTE_REPLACEMENT);
+                                    if (byteChar == 13) byteChar = (byte)'}'; // Supress CR
+                                    if (byteChar == 10) byteChar = 32;        // Convert LF to SPACE
+                                    if (byteChar == 94) byteChar = (byte)LF_REPLACEMENT;
+                                    if (byteChar == 32) byteChar = (byte)SPACE_REPLACEMENT;
+                                    if (byteChar == 34) byteChar = (byte)QUOTE_REPLACEMENT;
                                     byteTemp[j] = byteChar;
                                 }
 
@@ -856,7 +856,7 @@ namespace zabbrev
                                 for (int j = 0; j < gameTextLine.text.Length; j++)
                                 {
                                     char c = gameTextLine.text[j];
-                                    if (!(c == LF_REPLACEMENT || c == QUOTE_REPLACEMENT || c == SPACE_REPLACEMENT || ASCII(c) == 27))
+                                    if (!(c == LF_REPLACEMENT || c == QUOTE_REPLACEMENT || c == SPACE_REPLACEMENT || (int)c == 27))
                                     {
                                         charFreq.TryAdd(c, 0);
                                         charFreq[c] += 1;
@@ -872,6 +872,9 @@ namespace zabbrev
                 // Adjust outputformat if input is overridden
                 if (outputFormat == 1) inform6StyleText = true;
                 if (outputFormat == 2) inform6StyleText = false;
+
+                // Adjust console output encoding
+                Console.OutputEncoding = TextEncoding;
 
                 proc.Refresh();
                 swPart.Stop();
@@ -1661,7 +1664,6 @@ namespace zabbrev
                             if (pass == 1 && !line.packedAddress)
                             {
                                 wasted[line.latestRoundingCost] += 1;
-                                //wasted(line.latestRoundingCost) += 1
                                 bytes[line.latestRoundingCost] += line.latestTotalBytes;
                             }
                         }
@@ -1944,11 +1946,6 @@ namespace zabbrev
                     }
                 }
             }
-        }
-
-        private static byte ASCII(char cChr)
-        {
-            return (byte)cChr;
         }
 
         private static int ZstringCost(string sText)

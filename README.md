@@ -16,7 +16,7 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
 
 ## Instructions
 ```
-    ZAbbrev 0.12 (4th April 2026, in development) by Henrik Åsman, (c) 2021-2026
+    ZAbbrev 0.12 (6th April 2026, in development) by Henrik Åsman, (c) 2021-2026
     Usage: zabbrev [switches] [path-to-game]
     Highly optimized abbreviations computed efficiently
 
@@ -73,6 +73,7 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
                         Refactoring and optimizations
                         Bug: Crash on very small files (The Dragon and the Troll)
                         Bug: -a crashes when not enough characters for a full alphabet
+                        Bug: Fix for "arithmetic overflow" when converting unicode char to byte
         0.11 2024-12-28 Fix encoding error when building suffix array
                         Multiple passes when adding/removing spaces
                         Organize different compression options into -x[0-3], compression level
