@@ -69,11 +69,11 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
 
 
     Changelog:
-        0.12 2025-xx-xx Ignore empty lines in input
+        0.12 2026-xx-xx Visual Studio 2026, NET10
+                        Ignore empty lines in input
                         Refactoring and optimizations
                         Bug: Crash on very small files (The Dragon and the Troll)
                         Bug: -a crashes when not enough characters for a full alphabet
-                        Bug: Fix for "arithmetic overflow" when converting unicode char to byte
         0.11 2024-12-28 Fix encoding error when building suffix array
                         Multiple passes when adding/removing spaces
                         Organize different compression options into -x[0-3], compression level
@@ -99,7 +99,7 @@ Precompiled binaries are at: https://drive.google.com/drive/folders/1At6RU4wei5q
 ### C port of ZAbbrev
 There is also a C-port version ZAbbrev, maintained by Jason Self.  
   
-https://jxself.org/git/?p=zabbrev.git
+https://gitlab.com/zil-org/zabbrev
 ## References
 ### Algorithm
 https://intfiction.org/t/highly-optimized-abbreviations-computed-efficiently/48753  
