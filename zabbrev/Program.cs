@@ -62,9 +62,10 @@ using System.Threading;
 //                 ZAbbrevMaker --> ZAbbrev
 //                 Replace StringBuilder objects with AsSpan()
 //                 zabbrev without argas and no files to process equals -h
-// 0.12 2025-xx-xx Ignore empty lines in input
+// 0.12 2026-xx-xx Ignore empty lines in input
 //                 Refactoring and optimizations
 //                 Bug: Crash on very small files (The Dragon and the Troll)
+//                 Visual Studio 2026, NET10
 
 namespace zabbrev
 {
